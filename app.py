@@ -20,14 +20,15 @@ def chat():
         return jsonify({"error": "Question is required"}), 400
     
     try:
-        answer, context = get_response(question, session_id)
+        answer = get_response(question, session_id)
+        print("answer", answer)
         return jsonify({
             "question": question,
             "answer": answer,
-            "context": context,
             "session_id": session_id
         })
     except Exception as e:
+        print("error", e)
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/health", methods=["GET"])
