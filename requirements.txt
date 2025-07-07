@@ -1,0 +1,7 @@
+langchain
+langchain-google-genai
+langchain-mongodb
+pymongo
+flask
+pypdf
+python-dotenv
