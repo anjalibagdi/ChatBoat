@@ -24,7 +24,7 @@ def chat():
         print("answer", answer)
         return jsonify({
             "question": question,
-            "answer": answer,
+            "answer": str(answer),
             "session_id": session_id
         })
     except Exception as e:
