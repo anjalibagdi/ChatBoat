@@ -238,6 +238,15 @@ def detect_required_fields(question):
 # -------------------------------
 def get_response(question, session_id):
     try:
+        # Step 0: Greet Detection
+        greetings = ["hi", "hello", "hey", "hii", "hiii", "heyy", "good morning", "good evening", "good afternoon"]
+        if question.lower().strip() in greetings:
+            return {
+                "answer": "Hello! 👋 I'm your AI assistant for the Pet Store. How can I help you today?",
+                "data_based": False
+            }
+
+        # Step 1: Load vector retrievers
         retrievers = load_vector_stores_and_retrievers()
 
         # Step 1: Detect collection
@@ -255,8 +264,23 @@ def get_response(question, session_id):
         # Step 4: Aggregate & Generate Response
         target_collections = [collection] if collection and collection in retrievers else None
         docs = aggregate_context(question, retrievers, target_collections)
-        answer = run_rag_chain(question, docs)
+        print ("docs",docs)
+        # Step 6: Fallback to Gemini if no relevant docs
+        if not docs:
+            print("docs not found sending question to llm ---")
+            system_prompt = (
+                "You are an AI assistant for a pet store business. "
+                "Answer the user's question based on general pet store knowledge, "
+                "and ask for clarification if the question is too vague."
+            )
+            direct_answer = llm.invoke(question, system_instruction=system_prompt)
+            return {
+                "answer": direct_answer.content.strip(),
+                "data_based": False
+            }
 
+        # Step 7: Run RAG to generate answer
+        answer = run_rag_chain(question, docs)
         return {
             "answer": answer,
         }
@@ -264,6 +288,6 @@ def get_response(question, session_id):
     except Exception as e:
         print(f"❌ Error in get_response: {e}")
         return {
-            "answer": "I don't have this information.",
+            "answer": "Something went wrong. Please try again later.",
             "error": str(e)
         }

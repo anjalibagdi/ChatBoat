@@ -22,11 +22,29 @@ def chat():
     try:
         answer = get_response(question, session_id)
         print("answer", answer)
-        return jsonify({
-            "question": question,
-            "answer": str(answer),
-            "session_id": session_id
-        })
+        # return jsonify({
+        #     "question": question,
+        #     "answer": str(answer),
+        #     "session_id": session_id
+        # })
+
+        # If answer is a dict with 'answer' key inside it
+        if isinstance(answer, dict):
+            return jsonify({
+                "question": question,
+                "answer": answer.get("answer", ""), 
+                "data": answer.get("data"),          
+                "data_based": answer.get("data_based"),
+                "session_id": session_id
+            })
+        else:
+            return jsonify({
+                "question": question,
+                "answer": str(answer),
+                "session_id": session_id
+            })
+
+
     except Exception as e:
         print("error", e)
         return jsonify({"error": str(e)}), 500
